@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -32,41 +32,39 @@
 </head>
 <body>
   <div id="app"><div id="loading" class="screen"><div class="loading-image"><div class="green-flag"><svg viewBox="0 0 52.667 74.667" width="48" height="48"><defs><style>.a{fill:#4cbf4c;}.b{fill:#3b8b3b;}</style></defs><rect class="a" width="52.667" height="74.667" rx="8"/><rect class="b" x="16.667" y="12.667" width="10.667" height="10.667" rx="2"/></svg></div></div><p class="loading-text">正在加载游戏...</p><div class="progress-bar-outer"><div class="progress-bar-inner" id="progress"></div></div></div></div>
-  <script src="https://cdn.jsdelivr.net/npm/turbowarp@1.6.1/desktop.js" async onload="initTW()" onerror="initTW()"></script>
+  <script src="https://cdn.jsdelivr.net/npm/turbowarp@1.6.1/desktop.js" onload="initTW()" onerror="initTW()"></script>
   <script>
-    var projectId = 'REPLACE_WITH_PROJECT_ID';
     var progressEl = document.getElementById('progress');
     var progress = 0;
     var tw;
 
+    function setProgress(p) {
+      progress = p;
+      progressEl.style.width = progress + '%';
+    }
+
     function initTW() {
       tw = window.TurboWarp;
-      if (!tw) { loadLocal(); return; }
-      progress = 30;
-      progressEl.style.width = progress + '%';
+      if (!tw) {
+        document.getElementById('loading').innerHTML = '<p class="loading-text">加载失败，请检查网络</p>';
+        return;
+      }
+      setProgress(20);
 
-      var p = tw.createProject('https://turbowarp.org/' + projectId + '/embed', {
+      tw.createProject('./作品.sb3', {
         container: document.getElementById('app'),
         compilerOptions: {},
         onInitialized: function() {
-          progress = 70;
-          progressEl.style.width = progress + '%';
+          setProgress(70);
           tw.loadProject();
         }
-      });
-
-      p.then(function() {
-        progress = 100;
-        progressEl.style.width = progress + '%';
+      }).then(function() {
+        setProgress(100);
         document.getElementById('loading').style.display = 'none';
         tw.run();
-      }).catch(function() {
-        loadLocal();
+      }).catch(function(err) {
+        document.getElementById('loading').innerHTML = '<p class="loading-text">加载失败</p><p style="color:#888;font-size:14px">' + (err.message || err) + '</p>';
       });
-    }
-
-    function loadLocal() {
-      document.getElementById('loading').innerHTML = '<p class="loading-text">请访问</p><a href="https://scratch.mit.edu/projects/' + projectId + '" target="_blank" style="color:#e94560;font-size:1.2rem">在 Scratch 打开作品</a>';
     }
   </script>
 </body>
